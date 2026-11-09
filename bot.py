@@ -95,7 +95,7 @@ def main() -> None:
         fail(f"Telegram API returned an error: {payload}")
 
     with PROCESSED_FILE.open("a", encoding="utf-8") as state:
-        state.write(digest + "\\n")
+        state.write(digest + "\n")
     print("Processed video sent to Telegram; duplicate hash recorded.")
 
 
