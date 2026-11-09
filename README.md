@@ -1,21 +1,22 @@
 # MaQi Video Processing Bot
 
-A GitHub Actions workflow that processes a video you own or have permission to use, adds a configurable MaQi watermark, and sends the result to Telegram.
+GitHub Actions workflow to process a video you own or have permission to use, apply a MaQi-style branded overlay, and send it to your Telegram bot.
 
-## Setup
+## Current setup
 
-1. Add a video you own or are licensed to use under `input/` (for example, `input/video.mp4`).
-2. In **Settings → Secrets and variables → Actions → Secrets**, add:
-   - `TELEGRAM_BOT_TOKEN`
-   - `TELEGRAM_CHAT_ID`
-3. Optionally add the repository Actions variable `WATERMARK_TEXT` (default: `MaQi`).
-4. Open **Actions → Process and send video → Run workflow**.
-5. Enter the repository path to the video, such as `input/video.mp4`.
+1. Put a permitted source video in the repository, for example `input/video.mp4`.
+2. Fill `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `config.py`. Keep this repository private while using this temporary testing configuration.
+3. Open **Actions → Process and send video → Run workflow**.
+4. Enter `input/video.mp4` as the video path.
 
-The workflow uses FFmpeg to scale the video to a maximum width of 1280px, encode it as MP4, add a watermark, and send it to the configured Telegram chat.
+The workflow uses FFmpeg to scale the video to a maximum width of 1280px, add a top **WATCH & DOWNLOAD ON MAQI** banner, a bottom **LINK IN BIO** banner, and a MaQi corner watermark, then encode and send an MP4 to Telegram.
 
-## Notes
+A SHA-256 fingerprint is saved in `.processed_videos.txt` after successful upload. Re-running the workflow with the same source file skips the duplicate.
 
-- Do not commit bot tokens, passwords, or session files.
-- This starter workflow processes repository files only. It does not log into Instagram or download other creators' posts.
-- Keep source videos within GitHub's repository size limits. For larger files, use an object-storage upload flow instead.
+## Configuration
+
+Change overlay text in `config.py`. Environment variables override config values, so the project can later move to GitHub Actions Secrets without changing the processing code.
+
+## Current limitation
+
+This version processes repository video files. It does not fetch videos from Instagram accounts. The source must be a video you own or have permission to use.
