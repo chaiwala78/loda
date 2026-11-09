@@ -4,12 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       video_path:
-        description: "Path to your own/licensed video in the repository (for example: input/video.mp4)"
+        description: "Path to your own/permitted video in the repository (example: input/video.mp4)"
         required: true
         type: string
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: maqi-video-pipeline
+  cancel-in-progress: false
 
 jobs:
   process:
@@ -27,8 +31,17 @@ jobs:
 
       - name: Process video and send to Telegram
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WATERMARK_TEXT: ${{ vars.WATERMARK_TEXT }}
           VIDEO_PATH: ${{ inputs.video_path }}
         run: python bot.py
+
+      - name: Save duplicate-detection state
+        run: |
+          if [ -f .processed_videos.txt ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .processed_videos.txt
+            if ! git diff --cached --quiet; then
+              git commit -m "Save processed video fingerprint"
+              git push
+            fi
+          fi
